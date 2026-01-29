@@ -2,6 +2,7 @@ class TaskManager {
     constructor() {
         this.tasks = this.loadTasks();
         this.currentFilter = 'all';
+        this.showHistory = false;
         this.init();
     }
 
@@ -17,6 +18,8 @@ class TaskManager {
         const addTaskBtn = document.getElementById('addTaskBtn');
         const clearCompletedBtn = document.getElementById('clearCompletedBtn');
         const filterBtns = document.querySelectorAll('.filter-btn');
+        const taskList = document.getElementById('taskList');
+        const showHistory = document.getElementById('showHistory');
 
         addTaskBtn.addEventListener('click', () => this.addTask());
         taskInput.addEventListener('keypress', (e) => {
@@ -29,9 +32,30 @@ class TaskManager {
 
         filterBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                this.setFilter(e.target.dataset.filter);
-                this.updateFilterButtons(e.target);
+                const button = e.currentTarget;
+                this.setFilter(button.dataset.filter);
+                this.updateFilterButtons(button);
             });
+        });
+
+        taskList.addEventListener('click', (event) => {
+            const target = event.target;
+            const taskItem = target.closest('.task-item');
+            if (!taskItem) return;
+
+            const taskId = Number(taskItem.dataset.id);
+            if (target.classList.contains('task-checkbox')) {
+                this.toggleTask(taskId);
+            }
+            if (target.classList.contains('task-delete')) {
+                this.deleteTask(taskId);
+            }
+        });
+
+        showHistory.addEventListener('change', (event) => {
+            this.showHistory = event.target.checked;
+            this.renderTasks();
+            this.updateStats();
         });
     }
 
@@ -112,18 +136,25 @@ class TaskManager {
     updateFilterButtons(activeBtn) {
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.classList.remove('active');
+            btn.setAttribute('aria-pressed', 'false');
         });
         activeBtn.classList.add('active');
+        activeBtn.setAttribute('aria-pressed', 'true');
     }
 
     getFilteredTasks() {
+        const today = new Date().toDateString();
+        const visibleTasks = this.showHistory
+            ? this.tasks
+            : this.tasks.filter(task => new Date(task.createdAt).toDateString() === today);
+
         switch (this.currentFilter) {
             case 'completed':
-                return this.tasks.filter(t => t.completed);
+                return visibleTasks.filter(t => t.completed);
             case 'pending':
-                return this.tasks.filter(t => !t.completed);
+                return visibleTasks.filter(t => !t.completed);
             default:
-                return this.tasks;
+                return visibleTasks;
         }
     }
 
@@ -142,11 +173,12 @@ class TaskManager {
         
         taskList.innerHTML = filteredTasks.map(task => `
             <li class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
-                <div class="task-checkbox ${task.completed ? 'checked' : ''}" 
-                     onclick="taskManager.toggleTask(${task.id})"></div>
+                <button class="task-checkbox ${task.completed ? 'checked' : ''}" 
+                        type="button"
+                        aria-label="${task.completed ? 'Marcar como pendiente' : 'Marcar como completada'}"></button>
                 <span class="task-text">${this.escapeHtml(task.text)}</span>
                 <span class="task-time">${this.formatTime(task.createdAt)}</span>
-                <button class="task-delete" onclick="taskManager.deleteTask(${task.id})">×</button>
+                <button class="task-delete" type="button" aria-label="Eliminar tarea">×</button>
             </li>
         `).join('');
     }
@@ -157,15 +189,17 @@ class TaskManager {
         const pendingTasks = document.getElementById('pendingTasks');
         const clearCompletedBtn = document.getElementById('clearCompletedBtn');
 
-        const total = this.tasks.length;
-        const completed = this.tasks.filter(t => t.completed).length;
+        const visibleTasks = this.getFilteredTasks();
+        const total = visibleTasks.length;
+        const completed = visibleTasks.filter(t => t.completed).length;
         const pending = total - completed;
 
         totalTasks.textContent = total;
         completedTasks.textContent = completed;
         pendingTasks.textContent = pending;
 
-        clearCompletedBtn.disabled = completed === 0;
+        const totalCompleted = this.tasks.filter(t => t.completed).length;
+        clearCompletedBtn.disabled = totalCompleted === 0;
     }
 
     formatTime(dateString) {
@@ -194,26 +228,16 @@ class TaskManager {
     }
 
     showMessage(message) {
+        const toastRegion = document.getElementById('toastRegion');
         const messageDiv = document.createElement('div');
-        messageDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #dc3545;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            animation: slideIn 0.3s ease;
-        `;
+        messageDiv.className = 'toast';
         messageDiv.textContent = message;
-        document.body.appendChild(messageDiv);
+        toastRegion.appendChild(messageDiv);
 
         setTimeout(() => {
             messageDiv.style.animation = 'slideOut 0.3s ease';
             setTimeout(() => {
-                document.body.removeChild(messageDiv);
+                messageDiv.remove();
             }, 300);
         }, 3000);
     }
@@ -227,11 +251,7 @@ class TaskManager {
         if (saved) {
             try {
                 const tasks = JSON.parse(saved);
-                const today = new Date().toDateString();
-                return tasks.filter(task => {
-                    const taskDate = new Date(task.createdAt).toDateString();
-                    return taskDate === today;
-                });
+                return Array.isArray(tasks) ? tasks : [];
             } catch (e) {
                 console.error('Error loading tasks:', e);
                 return [];
@@ -240,17 +260,6 @@ class TaskManager {
         return [];
     }
 }
-
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideOut {
-        to {
-            opacity: 0;
-            transform: translateX(100%);
-        }
-    }
-`;
-document.head.appendChild(style);
 
 let taskManager;
 document.addEventListener('DOMContentLoaded', () => {

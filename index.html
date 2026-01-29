@@ -16,7 +16,8 @@
         <main>
             <section class="task-input">
                 <div class="input-group">
-                    <input type="text" id="taskInput" placeholder="¿Qué tarea quieres agregar hoy?" maxlength="100">
+                    <label class="sr-only" for="taskInput">Nueva tarea</label>
+                    <input type="text" id="taskInput" placeholder="¿Qué tarea quieres agregar hoy?" maxlength="100" autocomplete="off">
                     <button id="addTaskBtn" type="button">
                         <span class="plus-icon">+</span>
                         Agregar
@@ -42,13 +43,20 @@
             </section>
             
             <section class="task-filters">
-                <button class="filter-btn active" data-filter="all">Todas</button>
-                <button class="filter-btn" data-filter="pending">Pendientes</button>
-                <button class="filter-btn" data-filter="completed">Completadas</button>
+                <button class="filter-btn active" data-filter="all" aria-pressed="true">Todas</button>
+                <button class="filter-btn" data-filter="pending" aria-pressed="false">Pendientes</button>
+                <button class="filter-btn" data-filter="completed" aria-pressed="false">Completadas</button>
+            </section>
+
+            <section class="task-history" aria-label="Opciones de historial">
+                <label class="history-toggle">
+                    <input type="checkbox" id="showHistory">
+                    Mostrar historial de días anteriores
+                </label>
             </section>
             
             <section class="task-list">
-                <ul id="taskList"></ul>
+                <ul id="taskList" aria-live="polite"></ul>
                 <div class="empty-state" id="emptyState">
                     <div class="empty-icon">📝</div>
                     <p>No hay tareas aún. ¡Agrega tu primera tarea!</p>
@@ -57,9 +65,12 @@
         </main>
         
         <footer>
-            <button id="clearCompletedBtn" class="clear-btn">Limpiar Completadas</button>
+            <button id="clearCompletedBtn" class="clear-btn" type="button" aria-describedby="clearHint">Limpiar Completadas</button>
+            <p id="clearHint" class="helper-text">Solo se habilita cuando hay tareas completadas.</p>
         </footer>
     </div>
+
+    <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
     
     <script src="script.js"></script>
 </body>
