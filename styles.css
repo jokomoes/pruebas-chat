@@ -55,6 +55,17 @@ main {
     margin-bottom: 20px;
 }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
+
 #taskInput {
     flex: 1;
     padding: 15px 20px;
@@ -132,6 +143,29 @@ main {
     justify-content: center;
 }
 
+.task-history {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 25px;
+}
+
+.history-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #495057;
+    background: #f8f9fa;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid #e1e5e9;
+}
+
+.history-toggle input {
+    width: 18px;
+    height: 18px;
+}
+
 .filter-btn {
     padding: 10px 20px;
     border: 2px solid #e1e5e9;
@@ -207,6 +241,16 @@ main {
     justify-content: center;
     transition: all 0.3s ease;
     flex-shrink: 0;
+    background: transparent;
+}
+
+.task-checkbox:focus-visible,
+.task-delete:focus-visible,
+#addTaskBtn:focus-visible,
+.filter-btn:focus-visible,
+.clear-btn:focus-visible {
+    outline: 3px solid rgba(102, 126, 234, 0.4);
+    outline-offset: 2px;
 }
 
 .task-checkbox:hover {
@@ -285,6 +329,12 @@ footer {
     text-align: center;
 }
 
+.helper-text {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
 .clear-btn {
     padding: 12px 24px;
     background: #dc3545;
@@ -308,6 +358,33 @@ footer {
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+.toast-region {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1000;
+}
+
+.toast {
+    background: #dc3545;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease;
+    min-width: 220px;
+}
+
+@keyframes slideOut {
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
 }
 
 @media (max-width: 768px) {
@@ -344,6 +421,10 @@ footer {
         flex-wrap: wrap;
     }
     
+    .task-history {
+        margin-bottom: 20px;
+    }
+
     .task-item {
         padding: 15px;
     }
