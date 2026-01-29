@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Tareas Diarias</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mis Tareas Diarias</h1>
+            <p class="date" id="currentDate"></p>
+        </header>
+        
+        <main>
+            <section class="task-input">
+                <div class="input-group">
+                    <input type="text" id="taskInput" placeholder="¿Qué tarea quieres agregar hoy?" maxlength="100">
+                    <button id="addTaskBtn" type="button">
+                        <span class="plus-icon">+</span>
+                        Agregar
+                    </button>
+                </div>
+            </section>
+            
+            <section class="task-stats">
+                <div class="stats">
+                    <span class="stat-item">
+                        <span class="stat-number" id="totalTasks">0</span>
+                        <span class="stat-label">Total</span>
+                    </span>
+                    <span class="stat-item">
+                        <span class="stat-number" id="completedTasks">0</span>
+                        <span class="stat-label">Completadas</span>
+                    </span>
+                    <span class="stat-item">
+                        <span class="stat-number" id="pendingTasks">0</span>
+                        <span class="stat-label">Pendientes</span>
+                    </span>
+                </div>
+            </section>
+            
+            <section class="task-filters">
+                <button class="filter-btn active" data-filter="all">Todas</button>
+                <button class="filter-btn" data-filter="pending">Pendientes</button>
+                <button class="filter-btn" data-filter="completed">Completadas</button>
+            </section>
+            
+            <section class="task-list">
+                <ul id="taskList"></ul>
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">📝</div>
+                    <p>No hay tareas aún. ¡Agrega tu primera tarea!</p>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <button id="clearCompletedBtn" class="clear-btn">Limpiar Completadas</button>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
